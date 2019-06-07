@@ -1,6 +1,6 @@
 {
     "name": "@nettpack/core",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Webpack integration from Nette framework",
     "scripts": {
         "start": "npm run babel",
@@ -16,6 +16,11 @@
         "Webpack"
     ],
     "author": "Mykola Chomenko, Radek Zíka",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/nettpack/core.git"
+    },
+    "homepage": "https://github.com/nettpack/core",
     "license": "MIT",
     "peerDependencies": {
         "@babel/cli": "^7.4.4",
