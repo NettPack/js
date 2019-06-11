@@ -7,8 +7,6 @@ exports["default"] = _default;
 
 var _webpack = _interopRequireDefault(require("webpack"));
 
-var _path = _interopRequireDefault(require("path"));
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 /**
@@ -35,13 +33,16 @@ function _default(moduleName, config, NettPack) {
         test: /\.less$/,
         loader: ['style-loader', 'css-loader', 'less-loader']
       }]
+    },
+    resolve: {
+      alias: {}
     }
   };
   var entryApp = [];
 
   if (NettPack.mode === "development") {
     plugins.push(new _webpack["default"].HotModuleReplacementPlugin());
-    entryApp.push("webpack-hot-middleware/client?path=" + config.host + config.publicPath + "/" + moduleName + "/__webpack_hmr&timeout=" + config.webpackHmr);
+    entryApp.push("webpack-hot-middleware/client?path=" + config.host + config.publicPath + "/" + moduleName + "/__webpack_hmr&timeout=" + config.webpackHmr + "&noInfo=" + config.noInfo);
     baseConfig.devServer = {
       publicPath: config.publicPath + "/" + moduleName
     };

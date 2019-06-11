@@ -4,5 +4,6 @@ export default {
 	host: "http://localhost",
 	webpackHmr: 2000,
 	composerLockFile: './composer.lock',
-	vendorPath: './vendor'
+	vendorPath: './vendor',
+	noInfo: "true",
 }

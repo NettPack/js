@@ -1,5 +1,4 @@
 import webpack from 'webpack'
-import path from "path";
 
 /**
  * @param moduleName
@@ -35,13 +34,16 @@ export default function(moduleName, config, NettPack) {
 				},
 			]
 		},
+		resolve: {
+			alias: {}
+		}
 	};
 
 	let entryApp = [];
 	if (NettPack.mode === "development") {
 		plugins.push(new webpack.HotModuleReplacementPlugin());
 		entryApp.push(
-			"webpack-hot-middleware/client?path="+ config.host + config.publicPath + "/" + moduleName + "/__webpack_hmr&timeout=" + config.webpackHmr
+			"webpack-hot-middleware/client?path="+ config.host + config.publicPath + "/" + moduleName + "/__webpack_hmr&timeout=" + config.webpackHmr + "&noInfo=" + config.noInfo
 		);
 		baseConfig.devServer = {
 			publicPath: config.publicPath + "/" + moduleName

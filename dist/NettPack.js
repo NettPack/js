@@ -96,6 +96,7 @@ function () {
       /** INSTALL MODULE (admin, front.....) */
 
       var modules = {};
+      var resolves = {};
 
       for (var name in this.modules) {
         var module = this.modules[name];
@@ -107,10 +108,11 @@ function () {
           baseWebpack = _objectSpread({}, _WebpackConfig["default"]);
         }
 
-        baseWebpack.mode = this.mode;
+        this._applyResolve(packages, baseWebpack);
 
         this._applyModule(packages, baseWebpack, name);
 
+        resolves = this._deepMarge(resolves, baseWebpack.resolve);
         var moduleConfig = {};
 
         if (typeof module === "function") {
@@ -122,11 +124,39 @@ function () {
         modules[name] = this._deepMarge(baseWebpack, moduleConfig);
       }
 
-      return modules;
+      return {
+        modules: modules,
+        resolves: resolves
+      };
+    }
+  }, {
+    key: "_applyResolve",
+    value: function _applyResolve(packages, webPackConfig) {
+      var vendorPath = this._getPath(this.appDir, this.config.vendorPath);
+
+      for (var i in packages) {
+        var packageSettings = packages[i].settings;
+        var packageName = packages[i].name;
+
+        if (!packageSettings.resolve) {
+          continue;
+        }
+
+        if (!webPackConfig.resolve) {
+          webPackConfig.resolve = {};
+        }
+
+        for (var resolveName in packageSettings.resolve) {
+          var resolvePath = packageSettings.resolve[resolveName];
+          webPackConfig.resolve.alias[resolveName] = this._getPath(vendorPath + "/" + packageName, resolvePath);
+        }
+      }
     }
   }, {
     key: "_applyModule",
     value: function _applyModule(packages, webPackConfig, moduleName) {
+      var vendorPath = this._getPath(this.appDir, this.config.vendorPath);
+
       for (var i in packages) {
         var packageSettings = packages[i].settings;
         var packageName = packages[i].name;
@@ -150,10 +180,7 @@ function () {
             if (Array.isArray(entries)) {
               for (var index in entries) {
                 var _entry = entries[index];
-
-                var _vendorPath = this._getPath(this.appDir, this.config.vendorPath);
-
-                _entry = this._getPath(_vendorPath + "/" + packageName, _entry);
+                _entry = this._getPath(vendorPath + "/" + packageName, _entry);
                 webPackConfig.entry.packages.push(_entry);
               }
 
@@ -161,9 +188,6 @@ function () {
             }
 
             var entry = packageSettings.modules[moduleIndex];
-
-            var vendorPath = this._getPath(this.appDir, this.config.vendorPath);
-
             entry = this._getPath(vendorPath + "/" + packageName, entry);
             webPackConfig.entry.packages.push(entry);
           }

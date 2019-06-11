@@ -10,6 +10,7 @@ var _default = {
   host: "http://localhost",
   webpackHmr: 2000,
   composerLockFile: './composer.lock',
-  vendorPath: './vendor'
+  vendorPath: './vendor',
+  noInfo: "true"
 };
 exports["default"] = _default;

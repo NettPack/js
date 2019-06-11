@@ -55,6 +55,7 @@ export class NettPack {
 
 		/** INSTALL MODULE (admin, front.....) */
 		let modules = {};
+		let resolves = {};
 		for (let name in this.modules) {
 			let module = this.modules[name];
 
@@ -65,9 +66,10 @@ export class NettPack {
 				baseWebpack = {... WebpackConfig};
 			}
 
-			baseWebpack.mode = this.mode;
-
+			this._applyResolve(packages, baseWebpack);
 			this._applyModule(packages, baseWebpack, name);
+
+			resolves = this._deepMarge(resolves, baseWebpack.resolve);
 
 			let moduleConfig = {};
 			if ( typeof module === "function") {
@@ -75,13 +77,38 @@ export class NettPack {
 			} else {
 				moduleConfig = {... module};
 			}
-
 			modules[name] = this._deepMarge(baseWebpack, moduleConfig);
 		}
-		return modules;
+
+		return {
+			modules: modules,
+			resolves: resolves
+		};
+	}
+
+
+	_applyResolve(packages, webPackConfig) {
+		const vendorPath = this._getPath(this.appDir, this.config.vendorPath);
+		for (let i in packages) {
+			const packageSettings = packages[i].settings;
+			const packageName = packages[i].name;
+			if (!packageSettings.resolve) {
+				continue;
+			}
+
+			if (!webPackConfig.resolve) {
+				webPackConfig.resolve = {}
+			}
+
+			for (let resolveName in packageSettings.resolve) {
+				const resolvePath = packageSettings.resolve[resolveName];
+				webPackConfig.resolve.alias[resolveName] = this._getPath(vendorPath + "/" + packageName , resolvePath);
+			}
+		}
 	}
 
 	_applyModule(packages, webPackConfig, moduleName) {
+		const vendorPath = this._getPath(this.appDir, this.config.vendorPath);
 		for (let i in packages) {
 			const packageSettings = packages[i].settings;
 			const packageName = packages[i].name;
@@ -102,7 +129,6 @@ export class NettPack {
 					if (Array.isArray(entries)) {
 						for (let index in entries) {
 							let entry = entries[index];
-							let vendorPath = this._getPath(this.appDir, this.config.vendorPath);
 							entry = this._getPath(vendorPath + "/" + packageName , entry);
 							webPackConfig.entry.packages.push(entry)
 						}
@@ -110,7 +136,6 @@ export class NettPack {
 					}
 
 					let entry = packageSettings.modules[moduleIndex];
-					let vendorPath = this._getPath(this.appDir, this.config.vendorPath);
 					entry = this._getPath(vendorPath + "/" + packageName , entry);
 					webPackConfig.entry.packages.push(entry)
 				}
