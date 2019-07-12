@@ -17,19 +17,7 @@ export class NettPack {
 			}
 		}
 		this.modules = {};
-		this.mode = "development";
 		this.appDir = path.dirname(require.main.filename);
-	}
-
-	/**
-	 * @param {boolean} val
-	 */
-	enableProduction(val){
-		if (val === true) {
-			this.mode = "production";
-			return;
-		}
-		this.mode = "development";
 	}
 
 	/**
@@ -67,8 +55,8 @@ export class NettPack {
 			}
 
 			this._applyResolve(packages, baseWebpack);
+			this._applyEntry(packages, baseWebpack);
 			this._applyModule(packages, baseWebpack, name);
-
 			resolves = this._deepMarge(resolves, baseWebpack.resolve);
 
 			let moduleConfig = {};
@@ -86,6 +74,25 @@ export class NettPack {
 		};
 	}
 
+	_applyEntry(packages, webPackConfig) {
+		const vendorPath = this._getPath(this.appDir, this.config.vendorPath);
+		for (let i in packages) {
+			const packageSettings = packages[i].settings;
+			const packageName = packages[i].name;
+			if (!packageSettings.entry) {
+				continue;
+			}
+
+			if (!webPackConfig.entry) {
+				webPackConfig.entry = {}
+			}
+
+			for (let entryName in packageSettings.entry) {
+				const entryPath = packageSettings.entry[entryName];
+				webPackConfig.entry[entryName] = this._getPath(vendorPath + "/" + packageName , entryPath);
+			}
+		}
+	}
 
 	_applyResolve(packages, webPackConfig) {
 		const vendorPath = this._getPath(this.appDir, this.config.vendorPath);

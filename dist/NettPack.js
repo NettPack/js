@@ -48,30 +48,15 @@ function () {
     }
 
     this.modules = {};
-    this.mode = "development";
     this.appDir = _path["default"].dirname(require.main.filename);
   }
   /**
-   * @param {boolean} val
+   * @param {string} name
+   * @param {{}} module
    */
 
 
   _createClass(NettPack, [{
-    key: "enableProduction",
-    value: function enableProduction(val) {
-      if (val === true) {
-        this.mode = "production";
-        return;
-      }
-
-      this.mode = "development";
-    }
-    /**
-     * @param {string} name
-     * @param {{}} module
-     */
-
-  }, {
     key: "addAppModule",
     value: function addAppModule(name, module) {
       this.modules[name] = module;
@@ -110,6 +95,8 @@ function () {
 
         this._applyResolve(packages, baseWebpack);
 
+        this._applyEntry(packages, baseWebpack);
+
         this._applyModule(packages, baseWebpack, name);
 
         resolves = this._deepMarge(resolves, baseWebpack.resolve);
@@ -128,6 +115,29 @@ function () {
         modules: modules,
         resolves: resolves
       };
+    }
+  }, {
+    key: "_applyEntry",
+    value: function _applyEntry(packages, webPackConfig) {
+      var vendorPath = this._getPath(this.appDir, this.config.vendorPath);
+
+      for (var i in packages) {
+        var packageSettings = packages[i].settings;
+        var packageName = packages[i].name;
+
+        if (!packageSettings.entry) {
+          continue;
+        }
+
+        if (!webPackConfig.entry) {
+          webPackConfig.entry = {};
+        }
+
+        for (var entryName in packageSettings.entry) {
+          var entryPath = packageSettings.entry[entryName];
+          webPackConfig.entry[entryName] = this._getPath(vendorPath + "/" + packageName, entryPath);
+        }
+      }
     }
   }, {
     key: "_applyResolve",

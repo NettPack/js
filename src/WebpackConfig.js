@@ -15,32 +15,14 @@ export default function(moduleName, config, NettPack) {
 
 	let baseConfig = {
 		entry: {},
-		mode: "development",
-		module: {
-			rules: [
-				{
-					test: /\.js$/,
-					use: {
-						loader: 'babel-loader'
-					}
-				},
-				{
-					test: /\.css$/,
-					use: ['style-loader', 'css-loader'],
-				},
-				{
-					test: /\.less$/,
-					loader: ['style-loader', 'css-loader', 'less-loader']
-				},
-			]
-		},
+		mode: process.env.NODE_ENV,
 		resolve: {
 			alias: {}
 		}
 	};
 
 	let entryApp = [];
-	if (NettPack.mode === "development") {
+	if (process.env.NODE_ENV === "development") {
 		plugins.push(new webpack.HotModuleReplacementPlugin());
 		entryApp.push(
 			"webpack-hot-middleware/client?path="+ config.host + config.publicPath + "/" + moduleName + "/__webpack_hmr&timeout=" + config.webpackHmr + "&noInfo=" + config.noInfo
